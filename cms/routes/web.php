@@ -19,4 +19,13 @@ Route::delete('/book/{book}','BooksController@destroy');
 
 //Auth
 Auth::routes();
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'BooksController@index')->name('home'); 
+
+//以下でもログインの識別をできる・コントローラーへの記載は
+// Route::group(['middleware' => 'auth'], function () {
+//   //welcomeページを表示
+//   Route::get("/",function(){
+//      return view("welcome");
+//   });
+
+// });

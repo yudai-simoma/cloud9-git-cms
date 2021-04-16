@@ -10,9 +10,16 @@ use Validator;  //バリデーションを使えるようにする
 use Auth;       //認証モデルを使用する
 
 class BooksController extends Controller{
+    
+    //コンストラクタ （このクラスが呼ばれたら最初に処理をする）
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
     //本ダッシュボード表示
     public function index() {
-        $books = Book::orderBy('created_at', 'asc')->paginate(3);
+        $books = Book::where('user_id',Auth::user()->id)->orderBy('created_at', 'asc')->paginate(3);
         return view('books', [
             'books' => $books
         ]);
@@ -37,7 +44,7 @@ class BooksController extends Controller{
             }
             
             //データ更新
-            $books = Book::find($request->id);
+            $books = Book::where('user_id',Auth::user()->id)->find($request->id);
             $books->item_name   = $request->item_name;
             $books->item_number = $request->item_number;
             $books->item_amount = $request->item_amount;
@@ -63,17 +70,18 @@ class BooksController extends Controller{
         }
         // Eloquentモデル（登録処理）
         $books = new Book;
+        $books->user_id  = Auth::user()->id; //追加のコード
         $books->item_name =    $request->item_name;
         $books->item_number =  $request->item_number;
         $books->item_amount =  $request->item_amount;
         $books->published =    $request->published;
         $books->save(); 
-        return redirect('/');
+        return redirect('/')->with('message', '本登録が完了しました');
     }
     
     //更新画面表示
-    public function edit(Book $books) {
-        //{books}id 値を取得 => Book $books id 値の1レコード取得
+    public function edit($book_id){
+        $books = Book::where('user_id',Auth::user()->id)->find($book_id);
         return view('booksedit', [
             'book' => $books
         ]);
